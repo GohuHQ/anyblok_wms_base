@@ -444,11 +444,11 @@ possibilities:
     + define some Property to encode the specialization of a Goods
       Type relative to its parent.
     + have the :meth:`set_property()
-      <anyblok_wms_base.core.physobj.goods.PhysObj.set_property>` method
+      <anyblok_wms_base.core.physobj.main.PhysObj.set_property>` method
       set the proper Goods Type automatically on changes of that
       Property. *(Not done for 0.7.0)*
     + have the :meth:`get_property()
-      <anyblok_wms_base.core.physobj.goods.PhysObj.get_property>` method
+      <anyblok_wms_base.core.physobj.main.PhysObj.get_property>` method
       return the proper value for that Property, inferred from the
       actual Goods Type. *(This is actually a consequence of the Type
       Properties, also done for 0.7.0)*

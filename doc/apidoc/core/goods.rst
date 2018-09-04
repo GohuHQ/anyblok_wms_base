@@ -4,7 +4,7 @@ core.goods
 
 Model.Wms.PhysObj
 ~~~~~~~~~~~~~~~~~
-.. autoclass:: anyblok_wms_base.core.physobj.goods.PhysObj
+.. autoclass:: anyblok_wms_base.core.physobj.main.PhysObj
 
    .. raw:: html
 
@@ -59,7 +59,7 @@ Model.Wms.PhysObj.Type
 
 Model.Wms.PhysObj.Properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: anyblok_wms_base.core.physobj.goods.Properties
+.. autoclass:: anyblok_wms_base.core.physobj.main.Properties
 
    .. raw:: html
 
@@ -79,7 +79,7 @@ Model.Wms.PhysObj.Properties
 
 Model.Wms.PhysObj.Avatar
 ~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: anyblok_wms_base.core.physobj.goods.Avatar
+.. autoclass:: anyblok_wms_base.core.physobj.main.Avatar
 
    .. raw:: html
 
