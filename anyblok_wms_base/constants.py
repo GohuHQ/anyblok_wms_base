@@ -27,7 +27,7 @@ GOODS_STATES = dict(past="wms_goods_states_past",
                     future="wms_goods_states_future"
                     )
 """This is the enumeration of possible values of the ``state`` column of
-the :class:`Wms.PhysObj <anyblok_wms_base.core.goods.PhysObj>` Model.
+the :class:`Wms.PhysObj <anyblok_wms_base.core.physobj.PhysObj>` Model.
 
 - ``present``:
         means that the represented goods are (supposed to be) actually
