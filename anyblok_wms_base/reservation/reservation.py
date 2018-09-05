@@ -6,7 +6,11 @@
 # This Source Code Form is subject to the terms of the Mozilla Public License,
 # v. 2.0. If a copy of the MPL was not distributed with this file,You can
 # obtain one at http://mozilla.org/MPL/2.0/.
+import warnings
+
 from sqlalchemy import CheckConstraint
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from anyblok import Declarations
 from anyblok.column import Integer
 from anyblok.relationship import Many2One
@@ -15,10 +19,18 @@ register = Declarations.register
 Wms = Declarations.Model.Wms
 
 
+def deprecation_warn_goods():
+        warnings.warn("The 'goods' attribute of Model.Wms.Reservation.Avatar "
+                      "is deprecated, please rename to 'obj' before "
+                      "version 1.0 of Anyblok / WMS Base",
+                      DeprecationWarning,
+                      stacklevel=2)
+
+
 @register(Wms)
 class Reservation:
 
-    goods = Many2One(model=Wms.PhysObj, primary_key=True, index=True)
+    physobj = Many2One(model=Wms.PhysObj, primary_key=True, index=True)
     quantity = Integer()
     """The quantity that this Reservation provides.
 
@@ -35,6 +47,26 @@ class Reservation:
     """
     request_item = Many2One(model=Wms.Reservation.RequestItem,
                             index=True)
+
+    @hybrid_property
+    def goods(self):
+        """Compatibility wrapper.
+
+        Before the merge of Goods and Locations as PhysObj, :attr:`physobj` was
+        ``goods``.
+
+        Same trick does not work for ``goods_id`` though, probably because
+        this implicit column does not exist yet during registry load.
+        TODO ask jssuzanne about that and maybe introduce Anyblok's
+        hybrid_property besides hybrid_method
+        """
+        deprecation_warn_goods()
+        return self.physobj
+
+    @goods.setter
+    def goods(self, value):
+        deprecation_warn_goods()
+        self.physobj = value
 
     @classmethod
     def define_table_args(cls):
