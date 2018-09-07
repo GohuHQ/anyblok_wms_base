@@ -12,7 +12,6 @@ import warnings
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy import orm
 from sqlalchemy import or_
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from anyblok import Declarations
 from anyblok.column import Text
@@ -20,6 +19,7 @@ from anyblok.column import Selection
 from anyblok.column import Integer
 from anyblok.column import DateTime
 from anyblok.relationship import Many2One
+from anyblok.field import Function
 from anyblok_postgres.column import Jsonb
 
 from anyblok_wms_base.utils import dict_merge
@@ -668,25 +668,30 @@ class Avatar:
               with :attr:`dt_until` being theoretical in that case anyway.
     """
 
-    @hybrid_property
-    def goods(self):
-        """Compatibility wrapper.
+    goods = Function(fget='_goods_get',
+                     fset='_goods_set',
+                     fexpr='_goods_expr')
+    """Compatibility wrapper.
 
-        Before the merge of Goods and Locations as PhysObj, :attr:`obj` was
-        ``goods``.
+    Before the merge of Goods and Locations as PhysObj, :attr:`obj` was
+    ``goods``.
 
-        Same trick does not work for ``goods_id`` though, probably because
-        this implicit column does not exist yet during registry load.
-        TODO ask jssuzanne about that and maybe introduce Anyblok's
-        hybrid_property besides hybrid_method
-        """
+    This does not extend to compatibility of the former low level ``goods_id``
+    column.
+    """
+
+    def _goods_get(self):
         deprecation_warn_goods()
         return self.obj
 
-    @goods.setter
-    def goods(self, value):
+    def _goods_set(self, value):
         deprecation_warn_goods()
         self.obj = value
+
+    @classmethod
+    def _goods_expr(cls):
+        deprecation_warn_goods()
+        return cls.obj
 
     def __str__(self):
         return ("(id={self.id}, obj={self.obj}, state={self.state!r}, "

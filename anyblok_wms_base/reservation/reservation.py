@@ -9,11 +9,11 @@
 import warnings
 
 from sqlalchemy import CheckConstraint
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from anyblok import Declarations
 from anyblok.column import Integer
 from anyblok.relationship import Many2One
+from anyblok.field import Function
 
 register = Declarations.register
 Wms = Declarations.Model.Wms
@@ -48,25 +48,30 @@ class Reservation:
     request_item = Many2One(model=Wms.Reservation.RequestItem,
                             index=True)
 
-    @hybrid_property
-    def goods(self):
-        """Compatibility wrapper.
+    goods = Function(fget='_goods_get',
+                     fset='_goods_set',
+                     fexpr='_goods_expr')
+    """Compatibility wrapper.
 
-        Before the merge of Goods and Locations as PhysObj, :attr:`physobj` was
-        ``goods``.
+    Before the merge of Goods and Locations as PhysObj, :attr:`physobj` was
+    ``goods``.
 
-        Same trick does not work for ``goods_id`` though, probably because
-        this implicit column does not exist yet during registry load.
-        TODO ask jssuzanne about that and maybe introduce Anyblok's
-        hybrid_property besides hybrid_method
-        """
+    This does not extend to compatibility of the former low level ``goods_id``
+    column.
+    """
+
+    def _goods_get(self):
         deprecation_warn_goods()
         return self.physobj
 
-    @goods.setter
-    def goods(self, value):
+    def _goods_set(self, value):
         deprecation_warn_goods()
         self.physobj = value
+
+    @classmethod
+    def _goods_expr(cls):
+        deprecation_warn_goods()
+        return cls.physobj
 
     @classmethod
     def define_table_args(cls):
