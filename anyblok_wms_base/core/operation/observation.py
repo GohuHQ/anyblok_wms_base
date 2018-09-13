@@ -26,6 +26,13 @@ class Observation(Mixin.WmsSingleInputOperation, Operation):
     For now, only whole Property values are supported, i.e., for
     :class:`dict`-valued Properties, we can't observe the value of just a
     subkey.
+
+    .. note:: Like most non destructive Operations, an Observation always
+              creates a new Avatar. This may see superflous, but it is
+              actually useful to navigate in operational history in an
+              uniform way. Also having at some point different states for
+              these two avatars is useful, e.g., to insist on the Observation
+              being done before subsequent Operations etc.
     """
     TYPE = 'wms_observation'
 
@@ -43,7 +50,7 @@ class Observation(Mixin.WmsSingleInputOperation, Operation):
     TODO: rethink this, wouldn't it make sense actually to record some
     expected results, so that dependent Operations could be themselves planned
     ? This doesn't seem to be that useful, since e.g., Assemblies can check
-    different Properties according to their states.
+    different Properties according to their progress.
 
     Another case would be for reversals: prefill the result.
     """
@@ -53,3 +60,40 @@ class Observation(Mixin.WmsSingleInputOperation, Operation):
 
     TODO and maybe reversal
     """
+
+    def after_insert(self):
+        inp_av = self.input
+        physobj = inp_av.obj
+        state = self.state
+        if state != 'done' and self.observed_properties is not None:
+            # TODO precise exc
+            raise ValueError("Forbidden create a planned or just started "
+                             "Observation together with its results")
+        dt_exec = self.dt_execution
+        physobj.Avatar.insert(
+            obj=physobj,
+            state='future' if state == 'planned' else 'present',
+            reason=self,
+            location=self.input.location,
+            dt_from=dt_exec,
+            dt_until=None)
+
+        inp_av.update(dt_until=dt_exec, state='past')
+
+        if self.state == 'done':
+            self.apply_properties()
+
+    def apply_properties(self):
+        # TODO save previous properties (the direct ones, not the merged
+        # version)
+        observed = self.observed_properties
+        if observed is None:
+            # TODO precise exc
+            raise ValueError("Can't execute with no observed properties")
+        self.input.obj.update_properties(observed)
+
+    def execute_planned(self):
+        self.apply_properties()
+        dt_exec = self.dt_execution
+        self.input.update(dt_until=dt_exec, state='past')
+        self.outcomes[0].update(dt_from=dt_exec, state='present', reason=self)
