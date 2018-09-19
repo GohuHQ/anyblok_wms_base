@@ -42,6 +42,11 @@ class Observation(Mixin.WmsSingleInputOperation, Operation):
                  foreign_key=Operation.use('id').options(ondelete='cascade'))
     """Primary key."""
 
+    name = Text(nullable=True)
+    """The name of the observation, to identity quickly an observation
+    This field is optional and depends on the developer's needs.
+    """
+
     observed_properties = Jsonb()
     """Result of the Observation.
 
