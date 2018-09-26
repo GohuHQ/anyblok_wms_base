@@ -8,6 +8,7 @@
 # obtain one at http://mozilla.org/MPL/2.0/.
 from anyblok import Declarations
 from anyblok.column import Integer
+from anyblok.column import Text
 from anyblok_postgres.column import Jsonb
 
 register = Declarations.register
